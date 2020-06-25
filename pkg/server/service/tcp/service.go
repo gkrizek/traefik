@@ -7,6 +7,7 @@ import (
 	"net"
 	"time"
 
+	"github.com/containous/traefik/v2/pkg/ip"
 	"github.com/traefik/traefik/v2/pkg/config/runtime"
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/server/provider"
@@ -26,7 +27,7 @@ func NewManager(conf *runtime.Configuration) *Manager {
 }
 
 // BuildTCP Creates a tcp.Handler for a service configuration.
-func (m *Manager) BuildTCP(rootCtx context.Context, serviceName string) (tcp.Handler, error) {
+func (m *Manager) BuildTCP(rootCtx context.Context, serviceName string, ipChecker *ip.Checker) (tcp.Handler, error) {
 	serviceQualifiedName := provider.GetQualifiedName(rootCtx, serviceName)
 	ctx := provider.AddInContext(rootCtx, serviceQualifiedName)
 	ctx = log.With(ctx, log.Str(log.ServiceName, serviceName))
@@ -72,7 +73,7 @@ func (m *Manager) BuildTCP(rootCtx context.Context, serviceName string) (tcp.Han
 	case conf.Weighted != nil:
 		loadBalancer := tcp.NewWRRLoadBalancer()
 		for _, service := range conf.Weighted.Services {
-			handler, err := m.BuildTCP(rootCtx, service.Name)
+			handler, err := m.BuildTCP(rootCtx, service.Name, ipChecker)
 			if err != nil {
 				logger.Errorf("In service %q: %v", serviceQualifiedName, err)
 				return nil, err
