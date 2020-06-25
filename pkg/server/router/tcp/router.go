@@ -8,6 +8,7 @@ import (
 	"net/http"
 
 	"github.com/containous/traefik/v2/pkg/config/runtime"
+	"github.com/containous/traefik/v2/pkg/ip"
 	"github.com/containous/traefik/v2/pkg/log"
 	"github.com/containous/traefik/v2/pkg/rules"
 	"github.com/containous/traefik/v2/pkg/server/provider"
@@ -197,7 +198,16 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 			continue
 		}
 
-		handler, err := m.serviceManager.BuildTCP(ctxRouter, routerConfig.Service)
+		// Create a new IP Checker for whitelisted IPs
+		var ipChecker *ip.Checker
+		if len(routerConfig.IPWhitelist) > 0 {
+			ipChecker, err = ip.NewChecker(routerConfig.IPWhitelist)
+			if err != nil {
+				return nil, err
+			}
+		}
+
+		handler, err := m.serviceManager.BuildTCP(ctxRouter, routerConfig.Service, ipChecker)
 		if err != nil {
 			routerConfig.AddError(err, true)
 			logger.Error(err)
@@ -217,7 +227,7 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 			switch {
 			case routerConfig.TLS != nil:
 				if routerConfig.TLS.Passthrough {
-					router.AddRoute(domain, handler)
+					router.AddRoute(domain, handler, ipChecker)
 				} else {
 					tlsOptionsName := routerConfig.TLS.Options
 
@@ -236,7 +246,7 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 						continue
 					}
 
-					router.AddRouteTLS(domain, handler, tlsConf)
+					router.AddRouteTLS(domain, handler, tlsConf, ipChecker)
 				}
 			case domain == "*":
 				router.AddCatchAllNoTLS(handler)
@@ -244,6 +254,11 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 				logger.Warn("TCP Router ignored, cannot specify a Host rule without TLS")
 			}
 		}
+
+		/*Need to look up IP Addresses and set them here*/
+		/*need to use the functions NewChecker and IsAuthorized in pkg/ip/checker.go*/
+		/* Need to ultimately do the pass/fail in the pkg/tcp/router.go line 67 */
+		/* But how do I get the list of IPs into that file? */
 	}
 
 	return router, nil
