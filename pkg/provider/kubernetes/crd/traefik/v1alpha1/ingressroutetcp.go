@@ -11,6 +11,7 @@ type IngressRouteTCPSpec struct {
 	Routes      []RouteTCP `json:"routes"`
 	EntryPoints []string   `json:"entryPoints"`
 	TLS         *TLSTCP    `json:"tls,omitempty"`
+	IPWhitelist []string   `json:"ipWhitelist"`
 }
 
 // RouteTCP contains the set of routes.

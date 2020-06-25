@@ -90,6 +90,7 @@ func (p *Provider) loadIngressRouteTCPConfiguration(ctx context.Context, client 
 				EntryPoints: ingressRouteTCP.Spec.EntryPoints,
 				Rule:        route.Match,
 				Service:     serviceName,
+				IPWhitelist: ingressRouteTCP.Spec.IPWhitelist,
 			}
 
 			if ingressRouteTCP.Spec.TLS != nil {
