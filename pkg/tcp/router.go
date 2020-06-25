@@ -10,12 +10,18 @@ import (
 	"strings"
 	"time"
 
+	"github.com/containous/traefik/v2/pkg/ip"
 	"github.com/containous/traefik/v2/pkg/log"
 )
 
+type RoutingTableRoute struct {
+	handler Handler
+	checker *ip.Checker
+}
+
 // Router is a TCP router.
 type Router struct {
-	routingTable      map[string]Handler
+	routingTable      map[string]RoutingTableRoute
 	httpForwarder     Handler
 	httpsForwarder    Handler
 	httpHandler       http.Handler
@@ -63,19 +69,27 @@ func (r *Router) ServeTCP(conn WriteCloser) {
 		}
 		return
 	}
+	serverName = strings.ToLower(serverName)
+	remoteAddr := conn.RemoteAddr().String()
+	whitelistChecker := r.routingTable[serverName].checker
+	//Check if ip is allowed
+	err = whitelistChecker.IsAuthorized(remoteAddr)
+	if err != nil {
+		log.WithoutContext().Infof("Address %v is not in the whitelist", remoteAddr)
+		conn.Close()
+	}
 
 	// FIXME Optimize and test the routing table before helloServerName
-	serverName = strings.ToLower(serverName)
 	if r.routingTable != nil && serverName != "" {
 		if target, ok := r.routingTable[serverName]; ok {
-			target.ServeTCP(r.GetConn(conn, peeked))
+			target.handler.ServeTCP(r.GetConn(conn, peeked))
 			return
 		}
 	}
 
 	// FIXME Needs tests
 	if target, ok := r.routingTable["*"]; ok {
-		target.ServeTCP(r.GetConn(conn, peeked))
+		target.handler.ServeTCP(r.GetConn(conn, peeked))
 		return
 	}
 
@@ -87,19 +101,23 @@ func (r *Router) ServeTCP(conn WriteCloser) {
 }
 
 // AddRoute defines a handler for a given sniHost (* is the only valid option).
-func (r *Router) AddRoute(sniHost string, target Handler) {
+func (r *Router) AddRoute(sniHost string, target Handler, ipChecker *ip.Checker) {
 	if r.routingTable == nil {
-		r.routingTable = map[string]Handler{}
+		r.routingTable = map[string]RoutingTableRoute{}
+		//r.routingTable = map[string]Handler{}
 	}
-	r.routingTable[strings.ToLower(sniHost)] = target
+	r.routingTable[strings.ToLower(sniHost)] = RoutingTableRoute{
+		handler: target,
+		checker: ipChecker,
+	}
 }
 
 // AddRouteTLS defines a handler for a given sniHost and sets the matching tlsConfig.
-func (r *Router) AddRouteTLS(sniHost string, target Handler, config *tls.Config) {
+func (r *Router) AddRouteTLS(sniHost string, target Handler, config *tls.Config, ipChecker *ip.Checker) {
 	r.AddRoute(sniHost, &TLSHandler{
 		Next:   target,
 		Config: config,
-	})
+	}, ipChecker)
 }
 
 // AddRouteHTTPTLS defines a handler for a given sniHost and sets the matching tlsConfig.
@@ -142,8 +160,9 @@ func (r *Router) HTTPForwarder(handler Handler) {
 
 // HTTPSForwarder sets the tcp handler that will forward the TLS connections to an http handler.
 func (r *Router) HTTPSForwarder(handler Handler) {
+	var ipChecker *ip.Checker
 	for sniHost, tlsConf := range r.hostHTTPTLSConfig {
-		r.AddRouteTLS(sniHost, handler, tlsConf)
+		r.AddRouteTLS(sniHost, handler, tlsConf, ipChecker)
 	}
 
 	r.httpsForwarder = &TLSHandler{
