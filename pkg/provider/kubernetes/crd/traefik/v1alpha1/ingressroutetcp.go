@@ -11,13 +11,13 @@ type IngressRouteTCPSpec struct {
 	Routes      []RouteTCP `json:"routes"`
 	EntryPoints []string   `json:"entryPoints"`
 	TLS         *TLSTCP    `json:"tls,omitempty"`
-	IPWhitelist []string   `json:"ipWhitelist"`
 }
 
 // RouteTCP contains the set of routes.
 type RouteTCP struct {
-	Match    string       `json:"match"`
-	Services []ServiceTCP `json:"services,omitempty"`
+	Match       string       `json:"match"`
+	Services    []ServiceTCP `json:"services,omitempty"`
+	IPWhitelist []string     `json:"ipWhitelist"`
 }
 
 // TLSTCP contains the TLS certificates configuration of the routes.

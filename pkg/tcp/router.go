@@ -71,20 +71,26 @@ func (r *Router) ServeTCP(conn WriteCloser) {
 		}
 		return
 	}
-	serverName = strings.ToLower(serverName)
-	remoteAddr := conn.RemoteAddr().String()
-	whitelistChecker := r.routingTable[serverName].checker
-	//Check if ip is allowed
-	err = whitelistChecker.IsAuthorized(remoteAddr)
-	if err != nil {
-		log.WithoutContext().Infof("Address %v is not in the whitelist", remoteAddr)
-		conn.Close()
-	}
 
+	serverName = strings.ToLower(serverName)
 	// FIXME Optimize and test the routing table before helloServerName
 	serverName = types.CanonicalDomain(serverName)
 	if r.routingTable != nil && serverName != "" {
 		if target, ok := r.routingTable[serverName]; ok {
+
+			remoteAddr := conn.RemoteAddr().String()
+			whitelistChecker := r.routingTable[serverName].checker
+			// If there are no whitelisted IPs, everything is allowed so don't check
+			if len(whitelistChecker.AuthorizedIPs) != 0 || len(whitelistChecker.AuthorizedIPsNet) != 0 {
+				//Check if ip is allowed
+				err = whitelistChecker.IsAuthorized(remoteAddr)
+				if err != nil {
+					log.WithoutContext().Debugf("Address %v is not in the whitelist", remoteAddr)
+					conn.Close()
+					return
+				}
+			}
+
 			target.handler.ServeTCP(r.GetConn(conn, peeked))
 			return
 		}
