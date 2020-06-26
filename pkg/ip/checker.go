@@ -9,8 +9,8 @@ import (
 
 // Checker allows to check that addresses are in a trusted IPs
 type Checker struct {
-	authorizedIPs    []*net.IP
-	authorizedIPsNet []*net.IPNet
+	AuthorizedIPs    []*net.IP
+	AuthorizedIPsNet []*net.IPNet
 }
 
 // NewChecker builds a new Checker given a list of CIDR-Strings to trusted IPs
@@ -23,13 +23,13 @@ func NewChecker(trustedIPs []string) (*Checker, error) {
 
 	for _, ipMask := range trustedIPs {
 		if ipAddr := net.ParseIP(ipMask); ipAddr != nil {
-			checker.authorizedIPs = append(checker.authorizedIPs, &ipAddr)
+			checker.AuthorizedIPs = append(checker.AuthorizedIPs, &ipAddr)
 		} else {
 			_, ipAddr, err := net.ParseCIDR(ipMask)
 			if err != nil {
 				return nil, fmt.Errorf("parsing CIDR trusted IPs %s: %v", ipAddr, err)
 			}
-			checker.authorizedIPsNet = append(checker.authorizedIPsNet, ipAddr)
+			checker.AuthorizedIPsNet = append(checker.AuthorizedIPsNet, ipAddr)
 		}
 	}
 
@@ -74,13 +74,13 @@ func (ip *Checker) Contains(addr string) (bool, error) {
 
 // ContainsIP checks if provided address is in the trusted IPs
 func (ip *Checker) ContainsIP(addr net.IP) bool {
-	for _, authorizedIP := range ip.authorizedIPs {
+	for _, authorizedIP := range ip.AuthorizedIPs {
 		if authorizedIP.Equal(addr) {
 			return true
 		}
 	}
 
-	for _, authorizedNet := range ip.authorizedIPsNet {
+	for _, authorizedNet := range ip.AuthorizedIPsNet {
 		if authorizedNet.Contains(addr) {
 			return true
 		}

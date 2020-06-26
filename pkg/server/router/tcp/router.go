@@ -199,7 +199,7 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 		}
 
 		// Create a new IP Checker for whitelisted IPs
-		var ipChecker *ip.Checker
+		ipChecker := &ip.Checker{}
 		if len(routerConfig.IPWhitelist) > 0 {
 			ipChecker, err = ip.NewChecker(routerConfig.IPWhitelist)
 			if err != nil {
@@ -254,11 +254,6 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 				logger.Warn("TCP Router ignored, cannot specify a Host rule without TLS")
 			}
 		}
-
-		/*Need to look up IP Addresses and set them here*/
-		/*need to use the functions NewChecker and IsAuthorized in pkg/ip/checker.go*/
-		/* Need to ultimately do the pass/fail in the pkg/tcp/router.go line 67 */
-		/* But how do I get the list of IPs into that file? */
 	}
 
 	return router, nil

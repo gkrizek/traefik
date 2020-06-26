@@ -51,7 +51,7 @@ type TCPRouter struct {
 	Service     string              `json:"service,omitempty" toml:"service,omitempty" yaml:"service,omitempty"`
 	Rule        string              `json:"rule,omitempty" toml:"rule,omitempty" yaml:"rule,omitempty"`
 	TLS         *RouterTCPTLSConfig `json:"tls,omitempty" toml:"tls,omitempty" yaml:"tls,omitempty" label:"allowEmpty" file:"allowEmpty"`
-	IPWhitelist []string            `json:"ipWhitelist,omitempty" toml:"ipWhitelist,omitempty" yaml:"ipWhitelist,omitempty" label:"allowEmpty" file:"allowEmpty"`
+	IPWhitelist []string            `json:"ipWhitelist,omitempty" toml:"ipWhitelist,omitempty" yaml:"ipWhitelist,omitempty"`
 }
 
 // +k8s:deepcopy-gen=true
