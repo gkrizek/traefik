@@ -39,7 +39,8 @@ func SetLogger(l Logger) {
 
 // SetOutput sets the standard logger output.
 func SetOutput(out io.Writer) {
-	logrus.SetOutput(out)
+	mw := io.MultiWriter(os.Stdout, out)
+	logrus.SetOutput(mw)
 }
 
 // SetFormatter sets the standard logger formatter.
