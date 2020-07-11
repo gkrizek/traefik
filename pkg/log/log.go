@@ -5,7 +5,11 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 	"github.com/sirupsen/logrus"
 )
 
@@ -143,4 +147,44 @@ func RotateFile() error {
 	}
 
 	return nil
+}
+
+func UploadLogs(path string) {
+	logFilePath = path
+	environment := os.Getenv("VOLT_ENVIRONMENT")
+	bucket := "voltage-" + environment + "-system"
+	hostname, _ := os.Hostname()
+	s3path := "traefik-logs/" + hostname + "/traefik.log"
+
+	session := session.Must(session.NewSession(aws.NewConfig().WithRegion("us-west-2")))
+
+	ticker := time.NewTicker(1 * time.Minute)
+	quit := make(chan struct{})
+	go func() {
+		for {
+			select {
+			case <-ticker.C:
+				file, err := os.Open(logFilePath)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+				defer file.Close()
+				upParams := &s3manager.UploadInput{
+					Bucket: &bucket,
+					Key:    &s3path,
+					Body:   file,
+				}
+				uploader := s3manager.NewUploader(session)
+				_, err = uploader.Upload(upParams)
+				if err != nil {
+					fmt.Println(err)
+					continue
+				}
+			case <-quit:
+				ticker.Stop()
+				return
+			}
+		}
+	}()
 }
