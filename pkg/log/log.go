@@ -151,7 +151,11 @@ func RotateFile() error {
 
 func UploadLogs(path string) {
 	logFilePath = path
-	environment := os.Getenv("VOLT_ENVIRONMENT")
+	environment, ok := os.LookupEnv("VOLT_ENVIRONMENT")
+	if !ok {
+		fmt.Println("VOLT_ENVIRONMENT is not set. Not uploading logs")
+		return
+	}
 	bucket := "voltage-" + environment + "-system"
 	hostname, _ := os.Hostname()
 	s3path := "traefik-logs/" + hostname + "/traefik.log"
