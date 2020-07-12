@@ -1,0 +1,6 @@
+tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: /etc/default.cert
+        keyFile: /etc/default.key
