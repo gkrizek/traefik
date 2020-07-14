@@ -151,8 +151,8 @@ func RotateFile() error {
 func UploadLogs(path string) {
 	logFilePath = path
 	environment, ok := os.LookupEnv("VOLT_ENVIRONMENT")
-	if !ok {
-		fmt.Println("VOLT_ENVIRONMENT is not set. Not uploading logs")
+	if !ok || logFilePath == "" {
+		fmt.Println("VOLT_ENVIRONMENT is not set or the log file path is not set. Not uploading logs")
 		return
 	}
 	bucket := "voltage-" + environment + "-system"
