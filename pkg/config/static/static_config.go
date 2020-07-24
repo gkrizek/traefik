@@ -204,7 +204,7 @@ func (c *Configuration) SetEffectiveConfiguration() {
 		(c.Metrics != nil && c.Metrics.Prometheus != nil && !c.Metrics.Prometheus.ManualRouting && c.Metrics.Prometheus.EntryPoint == DefaultInternalEntryPointName) ||
 		(c.Providers != nil && c.Providers.Rest != nil && c.Providers.Rest.Insecure) {
 		if _, ok := c.EntryPoints[DefaultInternalEntryPointName]; !ok {
-			ep := &EntryPoint{Address: ":8080"}
+			ep := &EntryPoint{Address: ":8888"}
 			ep.SetDefaults()
 			c.EntryPoints[DefaultInternalEntryPointName] = ep
 		}

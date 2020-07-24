@@ -201,6 +201,7 @@ github.com/containous/mux v0.0.0-20181024131434-c33f32e26898 h1:1srn9voikJGofblB
 github.com/containous/mux v0.0.0-20181024131434-c33f32e26898/go.mod h1:z8WW7n06n8/1xF9Jl9WmuDeZuHAhfL+bwarNjsciwwg=
 github.com/coreos/bbolt v1.3.2/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/containous/traefik v1.7.24 h1:iFkoJBpQUQh1URdblBjbh32Wav8Ctl/WjLtAtvBzHis=
+github.com/containous/traefik v1.7.25 h1:1I2XJGLS5TawolIMfftGXErfFPNk6hLC7HYcm9lddQg=
 github.com/coreos/bbolt v1.3.3 h1:n6AiVyVRKQFNb6mJlwESEvvLoDyiTzXX7ORAUlkeBdY=
 github.com/coreos/bbolt v1.3.3/go.mod h1:iRUV2dpdMOn7Bo10OQBFzIJO9kkE559Wcmn+qkEiiKk=
 github.com/coreos/etcd v3.3.10+incompatible/go.mod h1:uF7uidLiAD3TWHmW31ZFd/JWoc32PjwdhPthX9715RE=
