@@ -11,6 +11,6 @@ RUN npm install
 
 COPY . $WEBUI_DIR/
 
-EXPOSE 8080
+EXPOSE 8888
 
 RUN npm run lint
