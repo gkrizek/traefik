@@ -156,12 +156,15 @@ func UploadLogs(path string) {
 		return
 	}
 	bucket := "voltage-" + environment + "-system"
-	hostname, _ := os.Hostname()
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown"
+	}
 	s3path := "traefik-logs/" + hostname + "/traefik.log"
 
 	session := session.Must(session.NewSession(aws.NewConfig().WithRegion("us-west-2")))
 
-	ticker := time.NewTicker(1 * time.Minute)
+	ticker := time.NewTicker(10 * time.Minute)
 	quit := make(chan struct{})
 	go func() {
 		for {
