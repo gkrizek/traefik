@@ -497,7 +497,7 @@ func configureLogging(staticConfiguration *static.Configuration) {
 		}
 
 		err = log.OpenFile(logFile)
-		go log.UploadLogs(logFile)
+		go log.UploadLogs()
 		logrus.RegisterExitHandler(func() {
 			if err := log.CloseFile(); err != nil {
 				log.WithoutContext().Errorf("Error while closing log: %v", err)

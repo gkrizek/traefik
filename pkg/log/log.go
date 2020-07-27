@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -148,8 +149,7 @@ func RotateFile() error {
 	return nil
 }
 
-func UploadLogs(path string) {
-	logFilePath = path
+func UploadLogs() {
 	environment, ok := os.LookupEnv("VOLT_ENVIRONMENT")
 	if !ok || logFilePath == "" {
 		fmt.Println("VOLT_ENVIRONMENT is not set or the log file path is not set. Not uploading logs")
@@ -160,8 +160,9 @@ func UploadLogs(path string) {
 	if err != nil {
 		hostname = "unknown"
 	}
-	s3path := "traefik-logs/" + hostname + "/traefik.log"
-
+	traefiks3path := "traefik-logs/" + hostname + "/traefik.log"
+	accesss3path := "traefik-logs/" + hostname + "/access.log"
+	uploadFiles := []string{traefiks3path, accesss3path}
 	session := session.Must(session.NewSession(aws.NewConfig().WithRegion("us-west-2")))
 
 	ticker := time.NewTicker(10 * time.Minute)
@@ -170,22 +171,25 @@ func UploadLogs(path string) {
 		for {
 			select {
 			case <-ticker.C:
-				file, err := os.Open(logFilePath)
-				if err != nil {
-					fmt.Println(err)
-					continue
-				}
-				defer file.Close()
-				upParams := &s3manager.UploadInput{
-					Bucket: &bucket,
-					Key:    &s3path,
-					Body:   file,
-				}
-				uploader := s3manager.NewUploader(session)
-				_, err = uploader.Upload(upParams)
-				if err != nil {
-					fmt.Println(err)
-					continue
+				for _, files := range uploadFiles {
+					logFilePath := strings.Replace(files, "traefik-logs/"+hostname, "/var/log", 1)
+					file, err := os.Open(logFilePath)
+					if err != nil {
+						fmt.Println(err)
+						continue
+					}
+					defer file.Close()
+					upParams := &s3manager.UploadInput{
+						Bucket: &bucket,
+						Key:    &files,
+						Body:   file,
+					}
+					uploader := s3manager.NewUploader(session)
+					_, err = uploader.Upload(upParams)
+					if err != nil {
+						fmt.Println(err)
+						continue
+					}
 				}
 			case <-quit:
 				ticker.Stop()
