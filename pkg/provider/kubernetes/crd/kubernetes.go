@@ -142,7 +142,9 @@ func (p *Provider) Provide(configurationChan chan<- dynamic.Message, pool *safe.
 					case err != nil:
 						logger.Error("Unable to hash the configuration")
 					case p.lastConfiguration.Get() == confHash:
-						logger.Debugf("Skipping Kubernetes event kind %T", event)
+						if fmt.Sprintf("%T", event) != "*v1.Endpoints" {
+							logger.Debugf("Skipping Kubernetes event kind %T", event)
+						}
 					default:
 						p.lastConfiguration.Set(confHash)
 						configurationChan <- dynamic.Message{
