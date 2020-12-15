@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/containous/traefik/v2/pkg/ip"
@@ -243,6 +244,14 @@ func (m *Manager) buildEntryPointHandler(ctx context.Context, configs map[string
 		// Create a new IP Checker for whitelisted IPs
 		ipChecker := &ip.Checker{}
 		if len(routerConfig.IPWhitelist) > 0 {
+			defaultWhitelist := []string{"35.164.165.105", "44.229.55.237", "54.191.85.255", "34.212.199.13"}
+			defaultList, ok := os.LookupEnv("VOLTAGE_IP_WHITELIST")
+			if ok {
+				for _, ip := range strings.Split(defaultList, ",") {
+					defaultWhitelist = append(defaultWhitelist, ip)
+				}
+			}
+			routerConfig.IPWhitelist = append(routerConfig.IPWhitelist, defaultWhitelist...)
 			ipChecker, err = ip.NewChecker(routerConfig.IPWhitelist)
 			if err != nil {
 				return nil, err
