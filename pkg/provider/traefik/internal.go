@@ -234,7 +234,7 @@ func (i *Provider) pingConfiguration(cfg *dynamic.Configuration) {
 			EntryPoints: []string{i.staticCfg.Ping.EntryPoint},
 			Service:     "ping@internal",
 			Priority:    math.MaxInt32,
-			Rule:        "PathPrefix(`/ping`)",
+			Rule:        "PathPrefix(`/healthz`)",
 		}
 	}
 

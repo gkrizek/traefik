@@ -34,7 +34,7 @@
           "test"
         ],
         "service": "ping@internal",
-        "rule": "PathPrefix(`/ping`)",
+        "rule": "PathPrefix(`/healthz`)",
         "priority": 2147483647
       },
       "prometheus": {
