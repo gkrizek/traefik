@@ -158,3 +158,18 @@ Traefik's logo is licensed under the Creative Commons 3.0 Attributions license.
 
 Traefik's logo was inspired by the gopher stickers made by [Takuya Ueda](https://twitter.com/tenntenn).
 The original Go gopher was designed by [Renee French](https://reneefrench.blogspot.com/).
+
+## TLS Update
+
+```
+certbot --work-dir=~/.certbot/ --logs-dir=~/.certbot/ --config-dir=~/.certbot/ certonly --manual
+```
+
+_Don't use ~ it doesn't expand to home_
+
+Move the fullchain.pem into scripts/default.cert
+Move the privkey.pem into scripts/default.key
+
+```
+make build-image
+```
