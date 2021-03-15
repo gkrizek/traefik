@@ -20,3 +20,4 @@ plugins-storage/
 traefik_changelog.md
 script/default.cert
 script/default.key
+~
