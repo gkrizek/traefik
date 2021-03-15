@@ -107,7 +107,7 @@ validate: $(PRE_TARGET)
 ## Clean up static directory and build a Docker Traefik image
 build-image: binary
 	rm -rf static
-	docker buildx build --push --platform linux/arm64/v8 -t 498537461460.dkr.ecr.us-west-2.amazonaws.com/voltage-staging:traefik-v0.1.2 .
+	docker buildx build --push --platform linux/arm64/v8 -t 498537461460.dkr.ecr.us-west-2.amazonaws.com/voltage-staging:traefik-v0.1.4 .
 
 ## Build a Docker Traefik image
 build-image-dirty: binary
