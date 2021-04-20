@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/containous/traefik/v2/pkg/ip"
-	"github.com/containous/traefik/v2/pkg/log"
+	"github.com/traefik/traefik/v2/pkg/ip"
+	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/types"
 )
 

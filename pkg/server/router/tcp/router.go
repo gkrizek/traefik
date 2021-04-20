@@ -10,8 +10,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/containous/traefik/v2/pkg/ip"
 	"github.com/traefik/traefik/v2/pkg/config/runtime"
+	"github.com/traefik/traefik/v2/pkg/ip"
 	"github.com/traefik/traefik/v2/pkg/log"
 	"github.com/traefik/traefik/v2/pkg/rules"
 	"github.com/traefik/traefik/v2/pkg/server/provider"
