@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"strings"
 
 	"github.com/containous/traefik/v2/pkg/config/dynamic"
 	"github.com/containous/traefik/v2/pkg/ip"
@@ -34,6 +36,15 @@ func New(ctx context.Context, next http.Handler, config dynamic.IPWhiteList, nam
 	if len(config.SourceRange) == 0 {
 		return nil, errors.New("sourceRange is empty, IPWhiteLister not created")
 	}
+
+	defaultWhitelist := []string{"35.164.165.105", "44.229.55.237", "54.191.85.255", "34.212.199.13"}
+	defaultList, ok := os.LookupEnv("VOLTAGE_IP_WHITELIST")
+	if ok {
+		for _, ip := range strings.Split(defaultList, ",") {
+			defaultWhitelist = append(defaultWhitelist, ip)
+		}
+	}
+	config.SourceRange = append(config.SourceRange, defaultWhitelist...)
 
 	checker, err := ip.NewChecker(config.SourceRange)
 	if err != nil {
